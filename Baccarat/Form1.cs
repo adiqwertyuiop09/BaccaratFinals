@@ -17,7 +17,7 @@ namespace Baccarat
         {
             InitializeComponent();
             
-            // Connect bet buttons
+           
             btnPlayerBet.Click += BtnPlayerBet_Click;
             btnBankerBet.Click += BtnBankerBet_Click;
             btnTieBet.Click += BtnTieBet_Click;
@@ -70,7 +70,9 @@ namespace Baccarat
             {
                 "2OfSpades.jpg", "3OfSpades.jpg", "4OfSpades.jpg", "5OfSpades.jpg",
                 "6OfSpades.jpg", "7OfSpades.jpg", "8OfSpades.jpg", "9OfSpades.jpg",
-                "10OfSpades.jpg", "AceOfSpades.jpg", "JackOfSpades.jpg", "QueenOfSpades.jpg", "KingOfSpades.jpg"
+                "10OfSpades.jpg", "AceOfSpades.jpg", "JackOfSpades.jpg", "QueenOfSpades.jpg", "KingOfSpades.jpg",
+
+                "AceOfHearts.png", "2OfHearts.png", "3OfHearts.jpg"
             };
 
             cardFileName = cardFiles[random.Next(cardFiles.Length)];
@@ -95,13 +97,13 @@ namespace Baccarat
 
         private bool ShouldPlayerDraw(int playerScore)
         {
-            // layer draws a third card if total is 0 to 5
+            
             return playerScore <= 5;
         }
 
         private bool ShouldBankerDraw(int bankerScore, int playerThirdCard)
         {
-            if (playerThirdCard == -1) // player didn't draw a third card
+            if (playerThirdCard == -1) 
                 return bankerScore <= 5;
 
             if (bankerScore <= 2) return true;
@@ -116,9 +118,16 @@ namespace Baccarat
 
         private void DealCards()
         {
+            pbPlayerCard3.Image = null;
+            pbBankerCard3.Image = null;
+
+            txtPlayerScore.Text = "";
+            txtBankerScore.Text = "";
+            lblWinner.Text = "";
+
             string playerCard1File, playerCard2File, bankerCard1File, bankerCard2File;
 
-            // deal first 2 cards banker at player
+           
             pbPlayerCard1.Image = GetRandomCardImage(out playerCard1File);
             pbPlayerCard2.Image = GetRandomCardImage(out playerCard2File);
             pbBankerCard1.Image = GetRandomCardImage(out bankerCard1File);
@@ -137,17 +146,20 @@ namespace Baccarat
 
             string playerThirdFile = "", bankerThirdFile = "";
 
-            // check for natural
+           
             bool natural = playerTotal >= 8 || bankerTotal >= 8;
 
             if (!natural)
             {
-                // player draws a third card if total is 0-5
-                // determine if player draws a third card
+               
                 if (ShouldPlayerDraw(playerTotal))
                 {
                     pbPlayerCard3.Image = GetRandomCardImage(out playerThirdFile);
                     playerThirdValue = GetCardValue(playerThirdFile);
+
+                    MessageBox.Show($"Player drew: {playerThirdFile}\nValue: {playerThirdValue}\nPrevious total: {(playerCard1Value + playerCard2Value) % 10}\nNew total: {(playerCard1Value + playerCard2Value + playerThirdValue) % 10}");
+
+
                     playerTotal = (playerTotal + playerThirdValue) % 10;
                 }
                 else
@@ -157,16 +169,20 @@ namespace Baccarat
                 }
 
 
-                // banker draws third card based on rules
+               
                 if (ShouldBankerDraw(bankerTotal, playerThirdValue))
                 {
                     pbBankerCard3.Image = GetRandomCardImage(out bankerThirdFile);
                     bankerThirdValue = GetCardValue(bankerThirdFile);
+
+                    MessageBox.Show($"Banker drew: {bankerThirdFile}\nValue: {bankerThirdValue}\nPrevious total: {(bankerCard1Value + bankerCard2Value) % 10}\nNew total: {(bankerCard1Value + bankerCard2Value + bankerThirdValue) % 10}");
+
+
                     bankerTotal = (bankerTotal + bankerThirdValue) % 10;
                 }
             }
 
-            // update score display
+           
             txtPlayerScore.Text = playerTotal.ToString();
             txtBankerScore.Text = bankerTotal.ToString();
 
@@ -193,14 +209,21 @@ namespace Baccarat
 
             if (cardName.Contains("Ace"))
                 return 1;
-            else if (cardName.Contains("Jack") || cardName.Contains("Queen") || cardName.Contains("King") || cardName.Contains("10") ) 
+            else if (cardName.Contains("Jack") || cardName.Contains("Queen") || cardName.Contains("King") || cardName.Contains("10"))
                 return 0;
             else
             {
-                string valueString = cardName.Substring(0, 1);
-                return int.TryParse(valueString, out int value) ? value : 0;
+                int index = cardName.IndexOf("Of");
+                if (index > 0)
+                {
+                    string numberPart = cardName.Substring(0, index);
+                    if (int.TryParse(numberPart, out int value))
+                        return value;
+                }
+                return 0;
             }
         }
+
 
         private string DetermineWinner(int playerScore, int bankerScore)
         {
@@ -250,7 +273,7 @@ namespace Baccarat
                 if (currentBetType == "Tie")
                     winnings *= 8;
                 else if (currentBetType == "Banker")
-                    winnings = (int)(winnings * 0.95); // 5% commission
+                    winnings = (int)(winnings * 0.95);
 
                 playerBalance += winnings;
                 MessageBox.Show($"You won! +{winnings}");
@@ -303,7 +326,7 @@ namespace Baccarat
 
         private void btnQuit_Click(object sender, EventArgs e)
         {
-            lblWinner.Text = "Developer Wins!";
+            lblWinner.Text = "Developer Wins!"; // idk ilalagay pag nag quit
             lblWinner.ForeColor = Color.Red;
             lblWinner.Font = new Font(lblWinner.Font.FontFamily, 9, FontStyle.Bold | FontStyle.Italic);
             lblWinner.TextAlign = ContentAlignment.MiddleCenter;
@@ -314,8 +337,10 @@ namespace Baccarat
 
             pbPlayerCard1.Image = null;
             pbPlayerCard2.Image = null;
+            pbPlayerCard3.Image = null;
             pbBankerCard1.Image = null;
             pbBankerCard2.Image = null;
+            pbBankerCard3.Image = null;
             txtPlayerScore.Text = string.Empty;
             txtBankerScore.Text = string.Empty;
 
