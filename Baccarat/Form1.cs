@@ -8,6 +8,8 @@ namespace Baccarat
     public partial class Form1 : Form
     {
         private Random random = new Random();
+        private List<string> deck = new List<string>();
+
 
         private int playerBalance = 1000;
         private int currentBetAmount = 0;
@@ -16,8 +18,8 @@ namespace Baccarat
         public Form1()
         {
             InitializeComponent();
-            
-           
+
+
             btnPlayerBet.Click += BtnPlayerBet_Click;
             btnBankerBet.Click += BtnBankerBet_Click;
             btnTieBet.Click += BtnTieBet_Click;
@@ -62,20 +64,47 @@ namespace Baccarat
             MessageBox.Show($"Bet placed on {betType} for {bet}.");
         }
 
-        private Image GetRandomCardImage(out string cardFileName)
+        private void InitializeDeck()
         {
-            string imageDirectory = @"C:\BaccaratCards\";
+            deck.Clear();
 
             string[] cardFiles = new string[]
             {
-                "2OfSpades.jpg", "3OfSpades.jpg", "4OfSpades.jpg", "5OfSpades.jpg",
-                "6OfSpades.jpg", "7OfSpades.jpg", "8OfSpades.jpg", "9OfSpades.jpg",
-                "10OfSpades.jpg", "AceOfSpades.jpg", "JackOfSpades.jpg", "QueenOfSpades.jpg", "KingOfSpades.jpg",
+                    "2OfSpades.jpg", "3OfSpades.jpg", "4OfSpades.jpg", "5OfSpades.jpg",
+                    "6OfSpades.jpg", "7OfSpades.jpg", "8OfSpades.jpg", "9OfSpades.jpg",
+                    "10OfSpades.jpg", "AceOfSpades.jpg", "JackOfSpades.jpg", "QueenOfSpades.jpg", "KingOfSpades.jpg",
 
-                "AceOfHearts.png", "2OfHearts.png", "3OfHearts.jpg"
+                    "AceOfHearts.png", "2OfHearts.png", "3OfHearts.jpg", "4OfHearts.jpg",
+                    "5OfHearts.jpg", "6OfHearts.jpg", "7OfHearts.jpg", "8OfHearts.jpg",
+                    "9OfHearts.jpg", "10OfHearts.jpg", "JackOfHearts.jpg", "QueenOfHearts.jpg", "KingOfHearts.jpg"
             };
 
-            cardFileName = cardFiles[random.Next(cardFiles.Length)];
+            deck.AddRange(cardFiles);
+
+            // shuffle deck
+            for (int i = deck.Count - 1; i > 0; i--)
+            {
+                int j = random.Next(i + 1);
+                var temp = deck[i];
+                deck[i] = deck[j];
+                deck[j] = temp;
+            }
+        }
+
+
+        private Image DrawCard(out string cardFileName)
+        {
+            if (deck.Count == 0)
+            {
+                MessageBox.Show("No more cards in deck!");
+                cardFileName = null;
+                return null;
+            }
+
+            cardFileName = deck[0];
+            deck.RemoveAt(0);
+
+            string imageDirectory = @"C:\BaccaratCards\";
             string cardImagePath = Path.Combine(imageDirectory, cardFileName);
 
             if (!File.Exists(cardImagePath))
@@ -95,15 +124,16 @@ namespace Baccarat
             }
         }
 
+
         private bool ShouldPlayerDraw(int playerScore)
         {
-            
+
             return playerScore <= 5;
         }
 
         private bool ShouldBankerDraw(int bankerScore, int playerThirdCard)
         {
-            if (playerThirdCard == -1) 
+            if (playerThirdCard == -1)
                 return bankerScore <= 5;
 
             if (bankerScore <= 2) return true;
@@ -118,6 +148,8 @@ namespace Baccarat
 
         private void DealCards()
         {
+            InitializeDeck();
+
             pbPlayerCard3.Image = null;
             pbBankerCard3.Image = null;
 
@@ -127,11 +159,11 @@ namespace Baccarat
 
             string playerCard1File, playerCard2File, bankerCard1File, bankerCard2File;
 
-           
-            pbPlayerCard1.Image = GetRandomCardImage(out playerCard1File);
-            pbPlayerCard2.Image = GetRandomCardImage(out playerCard2File);
-            pbBankerCard1.Image = GetRandomCardImage(out bankerCard1File);
-            pbBankerCard2.Image = GetRandomCardImage(out bankerCard2File);
+
+            pbPlayerCard1.Image = DrawCard(out playerCard1File);
+            pbPlayerCard2.Image = DrawCard(out playerCard2File);
+            pbBankerCard1.Image = DrawCard(out bankerCard1File);
+            pbBankerCard2.Image = DrawCard(out bankerCard2File);
 
             int playerCard1Value = GetCardValue(playerCard1File);
             int playerCard2Value = GetCardValue(playerCard2File);
@@ -146,15 +178,15 @@ namespace Baccarat
 
             string playerThirdFile = "", bankerThirdFile = "";
 
-           
+
             bool natural = playerTotal >= 8 || bankerTotal >= 8;
 
             if (!natural)
             {
-               
+
                 if (ShouldPlayerDraw(playerTotal))
                 {
-                    pbPlayerCard3.Image = GetRandomCardImage(out playerThirdFile);
+                    pbPlayerCard3.Image = DrawCard(out playerThirdFile);
                     playerThirdValue = GetCardValue(playerThirdFile);
 
                     MessageBox.Show($"Player drew: {playerThirdFile}\nValue: {playerThirdValue}\nPrevious total: {(playerCard1Value + playerCard2Value) % 10}\nNew total: {(playerCard1Value + playerCard2Value + playerThirdValue) % 10}");
@@ -169,10 +201,10 @@ namespace Baccarat
                 }
 
 
-               
+
                 if (ShouldBankerDraw(bankerTotal, playerThirdValue))
                 {
-                    pbBankerCard3.Image = GetRandomCardImage(out bankerThirdFile);
+                    pbBankerCard3.Image = DrawCard(out bankerThirdFile);
                     bankerThirdValue = GetCardValue(bankerThirdFile);
 
                     MessageBox.Show($"Banker drew: {bankerThirdFile}\nValue: {bankerThirdValue}\nPrevious total: {(bankerCard1Value + bankerCard2Value) % 10}\nNew total: {(bankerCard1Value + bankerCard2Value + bankerThirdValue) % 10}");
@@ -182,7 +214,7 @@ namespace Baccarat
                 }
             }
 
-           
+
             txtPlayerScore.Text = playerTotal.ToString();
             txtBankerScore.Text = bankerTotal.ToString();
 
@@ -296,7 +328,7 @@ namespace Baccarat
             pbPlayerCard2.Image = null;
             pbPlayerCard3.Image = null;
             pbBankerCard1.Image = null;
-            pbBankerCard2.Image = null;            
+            pbBankerCard2.Image = null;
             pbBankerCard3.Image = null;
 
             txtPlayerScore.Text = string.Empty;
