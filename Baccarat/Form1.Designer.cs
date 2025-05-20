@@ -1,4 +1,4 @@
-﻿namespace Baccarat
+namespace Baccarat
 {
     partial class Form1
     {
@@ -59,7 +59,7 @@
             // 
             lblPlayerHandTitle.AutoSize = true;
             lblPlayerHandTitle.Font = new Font("Arial", 12F, FontStyle.Bold);
-            lblPlayerHandTitle.Location = new Point(478, 70);
+            lblPlayerHandTitle.Location = new Point(398, 70);
             lblPlayerHandTitle.Name = "lblPlayerHandTitle";
             lblPlayerHandTitle.Size = new Size(124, 24);
             lblPlayerHandTitle.TabIndex = 0;
@@ -69,7 +69,7 @@
             // 
             lblBankerHandTitle.AutoSize = true;
             lblBankerHandTitle.Font = new Font("Arial", 12F, FontStyle.Bold);
-            lblBankerHandTitle.Location = new Point(880, 70);
+            lblBankerHandTitle.Location = new Point(963, 70);
             lblBankerHandTitle.Name = "lblBankerHandTitle";
             lblBankerHandTitle.Size = new Size(132, 24);
             lblBankerHandTitle.TabIndex = 2;
@@ -204,7 +204,6 @@
             txtBetAmount.Name = "txtBetAmount";
             txtBetAmount.Size = new Size(125, 27);
             txtBetAmount.TabIndex = 19;
-            txtBetAmount.TextChanged += txtBetAmount_TextChanged_1;
             // 
             // lblBetAmount
             // 
@@ -301,7 +300,7 @@
             Controls.Add(lblPlayerHandTitle);
             Name = "Form1";
             Text = "Baccarat Game";
-            Load += Form1_Load_1;
+            Load += Form1_Load;
             ((System.ComponentModel.ISupportInitialize)pbPlayerCard1).EndInit();
             ((System.ComponentModel.ISupportInitialize)pbPlayerCard2).EndInit();
             ((System.ComponentModel.ISupportInitialize)pbBankerCard1).EndInit();
