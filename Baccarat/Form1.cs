@@ -28,7 +28,7 @@ namespace Baccarat
         private void Form1_Load(object sender, EventArgs e)
         {
             lblPlayerBalance.Text = $"Player Balance: {playerBalance}";
-           
+            BackOfCards();
         }
 
         private void BtnPlayerBet_Click(object sender, EventArgs e)
@@ -393,25 +393,6 @@ namespace Baccarat
             lblPlayerBalance.Text = string.Empty;
             txtBetAmount.Text = string.Empty;
         }
-
-        private void lblPlayerBalance_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void txtBetAmount_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Form1_Load_1(object sender, EventArgs e)
-        {
-            BackOfCards();
-        }
-
-        private void txtBetAmount_TextChanged_1(object sender, EventArgs e)
-        {
-
-        }
+     
     }
 }
