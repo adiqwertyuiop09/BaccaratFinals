@@ -15,10 +15,10 @@ namespace Baccarat
         private int currentBetAmount = 0;
         private string currentBetType = "";
 
+        private Image backCardImage;
         public Form1()
         {
             InitializeComponent();
-
 
             btnPlayerBet.Click += BtnPlayerBet_Click;
             btnBankerBet.Click += BtnBankerBet_Click;
@@ -28,6 +28,7 @@ namespace Baccarat
         private void Form1_Load(object sender, EventArgs e)
         {
             lblPlayerBalance.Text = $"Player Balance: {playerBalance}";
+           
         }
 
         private void BtnPlayerBet_Click(object sender, EventArgs e)
@@ -64,6 +65,35 @@ namespace Baccarat
             MessageBox.Show($"Bet placed on {betType} for {bet}.");
         }
 
+        private void BackOfCards()
+        {
+            string backCardPath = @"C:\BaccaratCards\BackOfCard.jpg";
+
+            if (File.Exists(backCardPath))
+            {
+                backCardImage = Image.FromFile(backCardPath);
+
+                pbPlayerCard1.Image = backCardImage;
+                pbPlayerCard2.Image = backCardImage;
+                pbPlayerCard3.Image = backCardImage;
+                pbBankerCard1.Image = backCardImage;
+                pbBankerCard2.Image = backCardImage;
+                pbBankerCard3.Image = backCardImage;
+
+                pbPlayerCard1.SizeMode = PictureBoxSizeMode.StretchImage;
+                pbPlayerCard2.SizeMode = PictureBoxSizeMode.StretchImage;
+                pbPlayerCard3.SizeMode = PictureBoxSizeMode.StretchImage;
+                pbBankerCard1.SizeMode = PictureBoxSizeMode.StretchImage;
+                pbBankerCard2.SizeMode = PictureBoxSizeMode.StretchImage;
+                pbBankerCard3.SizeMode = PictureBoxSizeMode.StretchImage;
+            }
+            else
+            {
+                MessageBox.Show("Back of card image not found.");
+            }
+        }
+
+
         private void InitializeDeck()
         {
             deck.Clear();
@@ -81,7 +111,7 @@ namespace Baccarat
 
             deck.AddRange(cardFiles);
 
-            // shuffle deck
+          
             for (int i = deck.Count - 1; i > 0; i--)
             {
                 int j = random.Next(i + 1);
@@ -145,25 +175,32 @@ namespace Baccarat
             return false;
         }
 
-
-        private void DealCards()
+        private async Task DealCards()
         {
             InitializeDeck();
 
-            pbPlayerCard3.Image = null;
-            pbBankerCard3.Image = null;
+            pbPlayerCard3.Image = backCardImage;
+            pbBankerCard3.Image = backCardImage;
+
 
             txtPlayerScore.Text = "";
             txtBankerScore.Text = "";
-            lblWinner.Text = "";
 
             string playerCard1File, playerCard2File, bankerCard1File, bankerCard2File;
 
-
+          
+            await Task.Delay(1000);
             pbPlayerCard1.Image = DrawCard(out playerCard1File);
+            await Task.Delay(1000);
+
             pbPlayerCard2.Image = DrawCard(out playerCard2File);
+            await Task.Delay(1000);
+
             pbBankerCard1.Image = DrawCard(out bankerCard1File);
+            await Task.Delay(1000);
+
             pbBankerCard2.Image = DrawCard(out bankerCard2File);
+            await Task.Delay(1000);
 
             int playerCard1Value = GetCardValue(playerCard1File);
             int playerCard2Value = GetCardValue(playerCard2File);
@@ -178,52 +215,38 @@ namespace Baccarat
 
             string playerThirdFile = "", bankerThirdFile = "";
 
-
             bool natural = playerTotal >= 8 || bankerTotal >= 8;
 
             if (!natural)
             {
-
                 if (ShouldPlayerDraw(playerTotal))
                 {
                     pbPlayerCard3.Image = DrawCard(out playerThirdFile);
                     playerThirdValue = GetCardValue(playerThirdFile);
-
-                    MessageBox.Show($"Player drew: {playerThirdFile}\nValue: {playerThirdValue}\nPrevious total: {(playerCard1Value + playerCard2Value) % 10}\nNew total: {(playerCard1Value + playerCard2Value + playerThirdValue) % 10}");
-
-
                     playerTotal = (playerTotal + playerThirdValue) % 10;
+                    await Task.Delay(1000);
                 }
                 else
                 {
-                    pbPlayerCard3.Image = null;
+                    pbPlayerCard3.Image = backCardImage;
                     playerThirdValue = -1;
                 }
-
-
 
                 if (ShouldBankerDraw(bankerTotal, playerThirdValue))
                 {
                     pbBankerCard3.Image = DrawCard(out bankerThirdFile);
                     bankerThirdValue = GetCardValue(bankerThirdFile);
-
-                    MessageBox.Show($"Banker drew: {bankerThirdFile}\nValue: {bankerThirdValue}\nPrevious total: {(bankerCard1Value + bankerCard2Value) % 10}\nNew total: {(bankerCard1Value + bankerCard2Value + bankerThirdValue) % 10}");
-
-
                     bankerTotal = (bankerTotal + bankerThirdValue) % 10;
+                    await Task.Delay(1000);
                 }
             }
-
 
             txtPlayerScore.Text = playerTotal.ToString();
             txtBankerScore.Text = bankerTotal.ToString();
 
             string winner = DetermineWinner(playerTotal, bankerTotal);
-            lblWinner.Text = winner;
-
             ApplyBettingResult(winner);
         }
-
 
         private int CalculateScore(string card1FileName, string card2FileName) // redundant code ayoko pa burahin pwede magamit if papalitan score calculation
         {
@@ -324,12 +347,7 @@ namespace Baccarat
 
         private void ResetGame()
         {
-            pbPlayerCard1.Image = null;
-            pbPlayerCard2.Image = null;
-            pbPlayerCard3.Image = null;
-            pbBankerCard1.Image = null;
-            pbBankerCard2.Image = null;
-            pbBankerCard3.Image = null;
+            BackOfCards();
 
             txtPlayerScore.Text = string.Empty;
             txtBankerScore.Text = string.Empty;
@@ -340,15 +358,16 @@ namespace Baccarat
             txtBetAmount.Text = string.Empty;
         }
 
-        private void btnDeal_Click(object sender, EventArgs e)
+        private async void btnDeal_Click(object sender, EventArgs e)
         {
             if (currentBetAmount == 0 || string.IsNullOrEmpty(currentBetType))
             {
                 MessageBox.Show("Please place a bet before dealing.");
                 return;
             }
-
-            DealCards();
+            BackOfCards(); 
+            await Task.Delay(1500); 
+            await DealCards();
         }
 
         private void btnReset_Click(object sender, EventArgs e)
@@ -367,12 +386,7 @@ namespace Baccarat
             btnReset.Enabled = false;
             btnQuit.Enabled = false;
 
-            pbPlayerCard1.Image = null;
-            pbPlayerCard2.Image = null;
-            pbPlayerCard3.Image = null;
-            pbBankerCard1.Image = null;
-            pbBankerCard2.Image = null;
-            pbBankerCard3.Image = null;
+            BackOfCards();
             txtPlayerScore.Text = string.Empty;
             txtBankerScore.Text = string.Empty;
 
@@ -392,7 +406,7 @@ namespace Baccarat
 
         private void Form1_Load_1(object sender, EventArgs e)
         {
-
+            BackOfCards();
         }
 
         private void txtBetAmount_TextChanged_1(object sender, EventArgs e)
