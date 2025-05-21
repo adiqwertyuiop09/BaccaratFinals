@@ -185,6 +185,7 @@ namespace Baccarat
 
             txtPlayerScore.Text = "";
             txtBankerScore.Text = "";
+            lblWinner.Text = null;
 
             string playerCard1File, playerCard2File, bankerCard1File, bankerCard2File;
 
